@@ -22,8 +22,10 @@
     "mootools"      : false,
     "dojo"          : false,
 
-    "predef"        : [  // Custom globals.
-
+    "predef"        : [  
+        // Custom globals go in here
+        // Used to suppress "soAndSo is undefined" when it shouldn't be
+        // Use sparingly! 
     ],
 
 
@@ -69,8 +71,8 @@
     "nomen"         : false,  // Prohibit use of initial or trailing underbars in names.
     "onevar"        : false,  // Allow only one `var` statement per function.
     "plusplus"      : false,  // Prohibit use of `++` & `--`.
-    "sub"           : false,  // Tolerate all forms of subscript notation besides dot notation e.g. `dict['key']` instead of `dict.key`.
+    "sub"           : true,  // Tolerate all forms of subscript notation besides dot notation e.g. `dict['key']` instead of `dict.key`.
     "trailing"      : true,   // Prohibit trailing whitespaces.
     "white"         : false,  // Check against strict whitespace and indentation rules.
-    "indent"        : 2       // Specify indentation spacing
+    "indent"        : 4       // Specify indentation spacing
 }
