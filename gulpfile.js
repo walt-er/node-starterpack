@@ -1,55 +1,64 @@
 
 // Dependencies
 var gulp    = require('gulp'),
-    babel   = require('gulp-babel'),
-	concat  = require('gulp-concat'),
-    debug   = require('gulp-debug'),
-    jshint  = require('gulp-jshint'),
+	debug   = require('gulp-debug'),
 	sass    = require('gulp-sass'),
-    uglify  = require('gulp-uglify');
+	uglify  = require('gulp-uglify'),
+	rename  = require('gulp-rename'),
+	webpack  = require('webpack'),
+	webpackStream  = require('webpack-stream'),
+	webpackConfig = require('./webpack.config.js');
 
 // Function to log errors and continue
 function errorHandler (error) {
-    console.log(error.toString());
-    this.emit('end');
+	console.log(error.toString());
+	this.emit('end');
 };
 
-// Ignore compiled JS; lint, uglify and concat all other JS
-gulp.task('lint-uglify-concat-js', function () {
+// Lint and bundle with Webpack
+gulp.task('js:webpack', function () {
 
-    gulp.src([
-            './public_html/js/*',
-            '!./public_html/js/app.min.js'
-        ])
-        .pipe(jshint('.jshintrc'))
-        .pipe(jshint.reporter('default'))
-        .pipe(babel())
-        .pipe(uglify()) 
-        .pipe(concat('app.min.js'))
-        .pipe(gulp.dest('./public_html/js'));
+	return gulp.src('./public_html/app/*')
+		.pipe(webpackStream(webpackConfig, webpack))
+		.on('error', errorHandler)
+		.pipe(gulp.dest('./public_html/dist'));;
+
+});
+
+// Ugligfy JS for production 
+gulp.task('js:uglify', function () {
+
+	return gulp.src(['./public_html/dist/app.js'])
+		.pipe(uglify())
+		.on('error', errorHandler)
+		.pipe(rename('app.min.js'))
+		.pipe(gulp.dest('./public_html/dist'));
+
 });
 
 // Compile all SASS into one styleheet
-gulp.task('compile-sass', function() {
+gulp.task('sass:compile', function() {
 
-	gulp.src('./public_html/css/main.scss')
-    	.pipe(debug())
-        .on('error', errorHandler)
-        .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
-        .pipe(gulp.dest('./public_html/css'));
+	return gulp.src('./public_html/css/main.scss')
+		.pipe(debug())
+		.on('error', errorHandler)
+		.pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
+		.pipe(gulp.dest('./public_html/css'));
+
 });
 
-// Run tasks on file change
+// Run tasks on file change (just for SCSS, Webpack does its own watch task)
 gulp.task('watch', function() {
 
-    gulp.watch('./public_html/css/*.scss', ['compile-sass']);
-    gulp.watch('./public_html/js/*.js', ['lint-uglify-concat-js']);
+	gulp.watch('./public_html/css/*.scss', ['sass:compile']);
+	gulp.watch('./public_html/app/*.js', ['js:webpack']);
 
 });
 
 // Default: run all tasks and then wait for changes
 gulp.task('default', [
-	'lint-uglify-concat-js',
-	'compile-sass',
-    'watch',
+	'js:webpack',
+	'js:uglify',
+	'sass:compile',
+	'watch'
 ]);

@@ -12,7 +12,7 @@
     // Predefined globals whom JSHint will ignore.
     "browser"       : true,   // Standard browser globals e.g. `window`, `document`.
 
-    "node"          : false,
+    "node"          : true, //supress warnings about node.js globals like 'require'
     "rhino"         : false,
     "couch"         : false,
     "wsh"           : true,   // Windows Scripting Host.
@@ -35,9 +35,9 @@
 
 
     // ECMAScript 5.
-    "es5"           : false,   // Allow ECMAScript 5 syntax.
-    "strict"        : true,  // Require `use strict` pragma  in every file.
-    "globalstrict"  : true,  // Allow global "use strict" (also enables 'strict').
+    "es5"           : true,   // Allow ECMAScript 5 syntax.
+    "strict"        : false,  // Require `use strict` pragma  in every file.
+    "globalstrict"  : false,  // Allow global "use strict" (also enables 'strict').
 	"esnext"		: true,
 
 
@@ -53,7 +53,7 @@
     "expr"          : false,  // Tolerate `ExpressionStatement` as Programs.
     "forin"         : false,  // Tolerate `for in` loops without `hasOwnPrototype`.
     "immed"         : true,   // Require immediate invocations to be wrapped in parens e.g. `( function(){}() );`
-    "latedef"       : true,   // Prohipit variable use before definition.
+    "latedef"       : true,   // Prohibit variable use before definition.
     "loopfunc"      : false,  // Allow functions to be defined within loops.
     "noarg"         : true,   // Prohibit use of `arguments.caller` and `arguments.callee`.
     "regexp"        : true,   // Prohibit `.` and `[^...]` in regular expressions.

@@ -1,7 +1,8 @@
-"use strict";
 
 // Declaritive code to run on DOM load
 const onPageLoad = () => {
+
+	const dinner = 'Dinner'
 
 };
 
