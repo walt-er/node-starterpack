@@ -12,5 +12,8 @@ composer.lock
 config.yml
 sql/XXXXX.sql
 
+public_html/build
+public_html/dist
+
 *.sublime-project
 *.sublime-workspace
