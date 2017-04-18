@@ -1,67 +1,80 @@
 
 
-module.exports = {
+module.exports = function(env){
 
-	// File extensions that can be omitted in `require()` statements
-	resolve: {
-		extensions: [
-			'.js',
-			'.json'
-		]
-	},
+	// Check for production flag
+	var PROD = process.env.NODE_ENV == 'production';
+	console.log('Production:', process.env.NODE_ENV == 'production');
 
-	// Have webpack watch for changes, not gulp, because webpack does the linting
-	watch: false,
+	return {
 
-	// Entry points 
-	entry: [
-		'./public_html/app/app.js'
-	],
+		// Have webpack watch for changes, not gulp, because webpack does the linting
+		watch: true,
 
-	// Dist (path set by gulp)
-	output: {
-		filename: 'app.js'
-	},
-
-	module: {
-
-		rules: [
-			{
-				test: /\.js$/,
-				exclude:  __dirname + '/node_modules',
-				use: [
-
-					// Linting
-					{
-						loader: 'jshint-loader'	
-					},
-
-					// Babel for ES6
-					{
-						loader: 'babel-loader'
-					}
-				]
+		// Node server for quick local dev
+		devServer: {
+			contentBase: './public_html', // static files (index.html) to serve on URL
+			watchContentBase: true, // watch dist folder for changes and refresh
+			publicPath: PROD ? '/build/' : '/dist/', // put bundled JS here
+			historyApiFallback: true, // show index.html for 404s
+			inline: true, // inline the webpack stuff that allows for refresh on change
+			port: 8080, // pick a port
+			watchOptions: {
+				poll: 1000 // check for changes every second
 			}
-		]
+		},
 
-	},
+		// Sourcemaps: simpler and faster one for development, slower and more secure one for production
+		devtool: PROD ? 'source-map' : 'cheap-module-eval-source-map',
 
-	// JSHint options
- //    jshint: {
+		// File extensions that can be omitted in import and require statements
+		resolve: {
+			extensions: [
+				'.js',
+				'.json'
+			]
+		},
 
-	// 	// jshint errors are displayed by default as warnings 
-	// 	// set emitErrors to true to display them as errors 
-	// 	emitErrors: false,
+		// Entry point(s)
+		entry: [
+			'./public_html/app/app.js'
+		],
 
-	// 	// jshint to not interrupt the compilation 
-	// 	// if you want any file with jshint errors to fail 
-	// 	// set failOnHint to true 
-	// 	failOnHint: false,
+		// Destination for bundles
+		output: {
+			filename: 'bundle.js',
+			path: PROD ? __dirname + '/public_html/build' : __dirname + '/public_html/dist',
+		},
 
-	// 	// Custom reporter with colors
-	// 	reporter: require('jshint-loader-stylish')({
-	// 		style: 'default'
-	// 	})
+		// Rules for bundling 
+		module: {
 
-	// },
+			rules: [
+				{
+					enforce: 'pre',
+					test: /\.js$/,
+					exclude:  __dirname + '/node_modules',
+					use: [
+
+						// Linting
+						{
+							loader: 'eslint-loader'	
+						}
+
+					]
+				},
+				{
+					test: /\.js$/,
+					exclude:  __dirname + '/node_modules',
+					use: [
+
+						// Babel for ES6
+						{
+							loader: 'babel-loader'
+						}
+					]
+				}
+			]
+		}
+	}
 };

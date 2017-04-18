@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,10 +73,17 @@
 "use strict";
 
 
+var _other = __webpack_require__(1);
+
+var _other2 = _interopRequireDefault(_other);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 // Declaritive code to run on DOM load
 var onPageLoad = function onPageLoad() {
 
 	var dinner = 'Dinner';
+	(0, _other2.default)(dinner);
 };
 
 // Wait for page to load before running JS
@@ -86,8 +93,28 @@ window.onload = onPageLoad;
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+function logSomething(something) {
+
+	console.log(something, 'nooo');
+	console.log('dinner');
+}
+
+exports.default = logSomething;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
 module.exports = __webpack_require__(0);
 
 
 /***/ })
 /******/ ]);
+//# sourceMappingURL=bundle.js.map
