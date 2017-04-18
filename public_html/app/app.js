@@ -1,7 +1,8 @@
 // Declaritive code to run on DOM load
 const onPageLoad = () => {
 
-	
+	let message = 'Loaded!!!';
+	console.log(message);
 
 };
 

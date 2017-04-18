@@ -14,9 +14,6 @@
   "bugs": {
     "url": "https://github.com/walt-er/CHANGEME/issues"
   },
-  "dependencies": {
-    "express": "^4.2.0"
-  },
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-loader": "^6.4.1",
