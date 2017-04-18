@@ -1,10 +1,7 @@
-import logSomething from './other';
-
 // Declaritive code to run on DOM load
 const onPageLoad = () => {
 
-	const dinner = 'Dinner';
-	logSomething( dinner );
+	
 
 };
 

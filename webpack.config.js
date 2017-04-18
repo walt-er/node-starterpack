@@ -1,10 +1,10 @@
 
+const webpack = require('webpack');
 
 module.exports = function(env){
 
 	// Check for production flag
 	var PROD = process.env.NODE_ENV == 'production';
-	console.log('Production:', process.env.NODE_ENV == 'production');
 
 	return {
 
@@ -75,6 +75,24 @@ module.exports = function(env){
 					]
 				}
 			]
-		}
+		},
+
+		plugins: [
+	        new webpack.LoaderOptionsPlugin({
+	            minimize: true,
+	            debug: false
+	        }),
+	        new webpack.optimize.UglifyJsPlugin({
+	            beautify: false,
+	            mangle: {
+	                screw_ie8: true,
+	                keep_fnames: true
+	            },
+	            compress: {
+	                screw_ie8: true
+	            },
+	            comments: false
+	        })
+   		]
 	}
 };
