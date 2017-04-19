@@ -55,9 +55,9 @@ module.exports = function(env){
 
 			rules: [
 
-				// Linting (before Babel)
+				// Linting 
 				{
-					enforce: 'pre',
+					enforce: 'pre', // Lint before Babel
 					test: /\.js$/,
 					exclude:  __dirname + '/node_modules',
 					loader: 'eslint-loader',
