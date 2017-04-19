@@ -71,15 +71,15 @@ module.exports = function(env){
 				{
 					test: /\.js$/,
 					exclude:  __dirname + '/node_modules',
-					use: 'babel-loader'
+					loader: 'babel-loader'
 				},
 
 				// SCSS
 				{
 					test: /\.scss$/,
-					use: extractCSS.extract({
-						fallbackLoader: 'style-loader',
-						loader: 'css-loader!sass-loader',
+					loader: extractCSS.extract({
+						fallback: 'style-loader',
+						use: 'css-loader!sass-loader',
 					})
 				}
 			]

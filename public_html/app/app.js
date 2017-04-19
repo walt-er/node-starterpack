@@ -4,7 +4,7 @@ const onPageLoad = () => {
 
 	const message = 'Dasdfa';
 	console.log(message);
-
+	
 };
 
 // Wait for page to load before running JS
