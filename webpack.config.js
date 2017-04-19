@@ -9,7 +9,8 @@ module.exports = function(env){
 	return {
 
 		// Have webpack watch for changes, not gulp, because webpack does the linting
-		watch: true,
+		// Don't watch when building for production
+		watch: !PROD,
 
 		// Node server for quick local dev
 		devServer: {
@@ -55,7 +56,11 @@ module.exports = function(env){
 					enforce: 'pre',
 					test: /\.js$/,
 					exclude:  __dirname + '/node_modules',
-					use: 'eslint-loader'
+					loader: 'eslint-loader',
+					options: {
+						// Use stricter linting rules when building for production
+						configFile: PROD ? __dirname + '/.eslintrc-prod' : __dirname + '/.eslintrc'
+					}
 				},
 				// Babel for ES6
 				{
