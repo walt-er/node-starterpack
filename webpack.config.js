@@ -1,5 +1,7 @@
 
+// Plugins and such
 const webpack = require('webpack');
+const extractCSS = require("extract-text-webpack-plugin");
 
 module.exports = function(env){
 
@@ -38,7 +40,8 @@ module.exports = function(env){
 
 		// Entry point(s)
 		entry: [
-			'./public_html/app/app.js'
+			'./public_html/app/app.js',
+			'./public_html/css/main.scss'
 		],
 
 		// Destination for bundles
@@ -51,6 +54,7 @@ module.exports = function(env){
 		module: {
 
 			rules: [
+
 				// Linting (before Babel)
 				{
 					enforce: 'pre',
@@ -62,20 +66,34 @@ module.exports = function(env){
 						configFile: PROD ? __dirname + '/.eslintrc-prod' : __dirname + '/.eslintrc'
 					}
 				},
+
 				// Babel for ES6
 				{
 					test: /\.js$/,
 					exclude:  __dirname + '/node_modules',
 					use: 'babel-loader'
+				},
+
+				// SCSS
+				{
+					test: /\.scss$/,
+					use: extractCSS.extract({
+						fallbackLoader: 'style-loader',
+						loader: 'css-loader!sass-loader',
+					})
 				}
 			]
 		},
 
 		plugins: [
+
+    		new extractCSS("styles.css"),
+
 	        new webpack.LoaderOptionsPlugin({
 	            minimize: true,
 	            debug: false
 	        }),
+
 	        new webpack.optimize.UglifyJsPlugin({
 	            beautify: false,
 	            mangle: {
