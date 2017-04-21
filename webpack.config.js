@@ -10,10 +10,6 @@ module.exports = function(env){
 
 	return {
 
-		// Have webpack watch for changes, not gulp, because webpack does the linting
-		// Don't watch when building for production
-		watch: !PROD,
-
 		// Node server for quick local dev
 		devServer: {
 			contentBase: './public_html', // static files (index.html) to serve on URL
