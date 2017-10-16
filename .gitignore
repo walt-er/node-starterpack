@@ -10,7 +10,9 @@ vendor
 node_modules
 composer.lock
 config.yml
+package-lock.json
 sql/XXXXX.sql
+yarn.lock
 
 public_html/build
 public_html/dist
