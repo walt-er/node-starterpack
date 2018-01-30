@@ -19,16 +19,18 @@
     "webpack:dev": "webpack --progress --colors --env.BUILD",
     "webpack:prod": "webpack --progress --colors --env.PROD",
     "stylelint": "stylelint ./src/styles/main.scss",
-    "eslint": "eslint --ext .js --ext .jsx ./src/scripts/* ./src/components/*",
-    "vet": "npm run stylelint && npm run eslint",
-    "start": "npm run vet && npm run webpack:watch",
-    "build:dev": "npm run vet && npm run webpack:dev",
-    "build:prod": "npm run vet && npm run webpack:prod",
+    "eslint:dev": "eslint --ext .js --ext .jsx ./src/scripts/* ./src/components/*",
+    "eslint:prod": "eslint -c ./.eslintrc-prod --ext .js --ext .jsx ./src/scripts/* ./src/components/*",
+    "vet:dev": "npm run stylelint && npm run eslint:dev",
+    "vet:prod": "npm run stylelint && npm run eslint:prod",
+    "start": "npm run vet:dev && npm run webpack:watch",
+    "build:dev": "npm run vet:dev && npm run webpack:dev",
+    "build:prod": "npm run vet:prod && npm run webpack:prod",
     "stop": "sudo killall -9 node",
     "tkill": "taskkill /f /im node.exe"
   },
   "pre-commit": [
-    "vet"
+    "vet:dev"
   ],
   "devDependencies": {
     "autoprefixer": "7.2.5",
@@ -61,6 +63,7 @@
     "stylelint": "8.4.0",
     "stylelint-config-standard": "18.0.0",
     "stylelint-webpack-plugin": "0.10.1",
+    "uglifyjs-webpack-plugin": "1.1.8",
     "url-loader": "0.6.2",
     "webpack": "3.10.0",
     "webpack-dev-server": "2.4.2",
