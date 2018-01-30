@@ -14,8 +14,9 @@ package-lock.json
 sql/XXXXX.sql
 yarn.lock
 
-public_html/build
-public_html/dist
+build
+dist
+prod
 
 *.sublime-project
 *.sublime-workspace
