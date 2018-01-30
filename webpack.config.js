@@ -1,106 +1,181 @@
 
 // Plugins and such
 const webpack = require('webpack');
-const extractCSS = require("extract-text-webpack-plugin");
+const path = require('path');
+const copyWebpackPlugin = require('copy-webpack-plugin');
+const extractTextPlugin = require('extract-text-webpack-plugin');
+const jsonImporter = require('node-sass-json-importer');
 
-module.exports = function(env){
+module.exports = ({ BUILD, PROD, HOT }) => {
 
-	// Check for production flag
-	var PROD = process.env.NODE_ENV == 'production';
+	const entryApp = [
+		'babel-polyfill',
+		path.join(__dirname, './src/index.jsx'),
+		path.join(__dirname, './src/styles/main.scss')
+	];
+
+	if (HOT) {
+		entryApp.push(
+			'webpack-dev-server/client?http://localhost:3000',
+			'webpack/hot/dev-server'
+		);
+	}
+
+	const plugins = [
+		new copyWebpackPlugin([
+			{
+				context: path.join(__dirname, './src/images'),
+				from: '**/*',
+				to: PROD ? path.join(__dirname, './prod/images') : path.join(__dirname, './dist/images')
+			},
+			{
+				context: path.join(__dirname, './src'),
+				from: 'index.html',
+				to: PROD ? path.join(__dirname, './prod') : path.join(__dirname, './dist')
+			}
+		]),
+		new extractTextPlugin({
+			filename: !HOT ? 'main.min.css' : 'main.css',
+			disable: false,
+			allChunks: true
+		}),
+		new webpack.NoEmitOnErrorsPlugin()
+	];
+
+	if (HOT) {
+
+		// Hot module replacement for dev
+		plugins.push(new webpack.HotModuleReplacementPlugin());
+
+	} else {
+
+		// Uglify JS for prod
+		plugins.push(new webpack.optimize.UglifyJsPlugin({
+			mangle: true,
+			compress: {
+				warnings: false, // Suppress uglification warnings
+				pure_getters: true,
+				unsafe: true,
+				unsafe_comps: true,
+				screw_ie8: true
+			},
+			output: {
+				comments: false,
+			},
+			exclude: [/\.min\.js$/gi] // skip pre-minified libs
+		}));
+
+	}
 
 	return {
-
-		// Node server for quick local dev
+		devtool: !PROD ? 'cheap-source-map' : '', // the best source map for dev. no map for prod
 		devServer: {
-			contentBase: './public_html', // static files (index.html) to serve on URL
+			contentBase: path.join(__dirname, './dist'), // static files (index.html) to serve on URL
+			publicPath: '/static/', // put bundled JS here
 			watchContentBase: true, // watch dist folder for changes and refresh
-			publicPath: PROD ? '/build/' : '/dist/', // put bundled JS here
 			historyApiFallback: true, // show index.html for 404s
-			inline: true, // inline the webpack stuff that allows for refresh on change
-			port: 8080, // pick a port
+			hot: true, // reload modules without reloading page
+			// inline: true, // inline the webpack stuff that allows for refresh on change
+			port: 3000, // pick a port
 			watchOptions: {
 				poll: 1000 // check for changes every second
 			}
 		},
-
-		// Sourcemaps: simpler and faster one for development, slower and more secure one for production
-		devtool: PROD ? 'source-map' : 'cheap-module-eval-source-map',
-
-		// File extensions that can be omitted in import and require statements
+		entry: {
+			app: entryApp
+		},
+		output: {
+			path: PROD ? path.join(__dirname, '/prod/static/') : path.join(__dirname, '/dist/static/'),
+			publicPath: '/static/',
+			filename: '[name].min.js'
+		},
+		node: {
+			Buffer: false // this helps with stylelint
+		},
 		resolve: {
+			modules: [
+				path.join(__dirname, './node_modules'),
+				path.join(__dirname, './src/scripts'),
+				path.join(__dirname, './src/styles')
+			],
 			extensions: [
 				'.js',
-				'.json'
+				'.jsx',
+				'.scss',
+				'.css'
 			]
 		},
-
-		// Entry point(s)
-		entry: [
-			'./public_html/app/app.js',
-			'./public_html/css/main.scss'
-		],
-
-		// Destination for bundles
-		output: {
-			filename: 'bundle.js',
-			path: PROD ? __dirname + '/public_html/build' : __dirname + '/public_html/dist',
-		},
-
-		// Rules for bundling 
 		module: {
-
-			rules: [
-
-				// Linting 
+			loaders: [
 				{
-					enforce: 'pre', // Lint before Babel
-					test: /\.js$/,
-					exclude:  __dirname + '/node_modules',
-					loader: 'eslint-loader',
-					options: {
-						// Use stricter linting rules when building for production
-						configFile: PROD ? __dirname + '/.eslintrc-prod' : __dirname + '/.eslintrc'
-					}
+					test: /\.jsx?/,
+					exclude: /(node_modules)/,
+					use: ['babel-loader', 'eslint-loader']
 				},
-
-				// Babel for ES6
-				{
-					test: /\.js$/,
-					exclude:  __dirname + '/node_modules',
-					loader: 'babel-loader'
-				},
-
-				// SCSS
 				{
 					test: /\.scss$/,
-					loader: extractCSS.extract({
+					use: ['css-hot-loader'].concat(extractTextPlugin.extract({
 						fallback: 'style-loader',
-						use: 'css-loader!sass-loader',
-					})
+						use: [
+							{
+								loader: 'css-loader',
+								options: {
+									sourceMap: true,
+									importLoaders: 1
+								}
+							},
+							{
+								loader: 'postcss-loader',
+								options: {
+									sourceMap: true,
+									plugins: () => [
+										require('postcss-cssnext'),
+										require('postcss-reporter')({ clearMessages: true })
+									]
+								}
+							},
+							{
+								loader: 'sass-loader',
+								options: {
+									importer: jsonImporter,
+									includePaths: [
+										path.resolve(__dirname, 'node_modules/bourbon-neat/core')
+									],
+									outputStyle: !HOT ? 'compressed' : 'expanded',
+									outFile: !HOT ? 'main.min.css' : 'main.css',
+									sourceMap: true,
+									sourceMapContents: true
+								}
+							}
+						]
+					}))
+				},
+				{   // compile css in the same way, without the sass loader
+					test: /\.css/,
+					use: ['css-hot-loader'].concat(extractTextPlugin.extract({
+						fallback: 'style-loader',
+						use: [
+							{
+								loader: 'css-loader',
+								options: {
+									sourceMap: true,
+									importLoaders: 1
+								}
+							},
+							{
+								loader: 'postcss-loader',
+								options: {
+									plugins: () => [
+										require('postcss-cssnext'),
+										require('postcss-reporter')({ clearMessages: true })
+									]
+								}
+							},
+						]
+					}))
 				}
 			]
 		},
-
-		plugins: [
-
-    		new extractCSS("styles.css"),
-
-	        new webpack.LoaderOptionsPlugin({
-	            minimize: true,
-	            debug: false
-	        }),
-
-	        new webpack.optimize.UglifyJsPlugin({
-	            beautify: false,
-	            mangle: {
-	                screw_ie8: true,
-	                keep_fnames: true
-	            },
-	            compress: {
-	                screw_ie8: true
-	            },
-	            comments: false
-	        })
-   		]
+		plugins: plugins
 	}
 };
